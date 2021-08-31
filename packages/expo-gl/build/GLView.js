@@ -9,23 +9,10 @@ const NativeView = requireNativeViewManager('ExponentGLView');
  * A component that acts as an OpenGL render target
  */
 export class GLView extends React.Component {
-    constructor() {
-        super(...arguments);
-        this.nativeRef = null;
-        this._setNativeRef = (nativeRef) => {
-            if (this.props.nativeRef_EXPERIMENTAL) {
-                this.props.nativeRef_EXPERIMENTAL(nativeRef);
-            }
-            this.nativeRef = nativeRef;
-        };
-        this._onSurfaceCreate = ({ nativeEvent: { exglCtxId } }) => {
-            const gl = getGl(exglCtxId);
-            this.exglCtxId = exglCtxId;
-            if (this.props.onContextCreate) {
-                this.props.onContextCreate(gl);
-            }
-        };
-    }
+    static NativeView;
+    static defaultProps = {
+        msaaSamples: 4,
+    };
     static async createContextAsync() {
         const { exglCtxId } = await ExponentGLObjectManager.createContextAsync();
         return getGl(exglCtxId);
@@ -38,10 +25,12 @@ export class GLView extends React.Component {
         const exglCtxId = getContextId(exgl);
         return ExponentGLObjectManager.takeSnapshotAsync(exglCtxId, options);
     }
+    nativeRef = null;
+    exglCtxId;
     render() {
         const { onContextCreate, // eslint-disable-line no-unused-vars
         msaaSamples, ...viewProps } = this.props;
-        return (React.createElement(View, Object.assign({}, viewProps),
+        return (React.createElement(View, { ...viewProps },
             React.createElement(NativeView, { ref: this._setNativeRef, style: {
                     flex: 1,
                     ...(Platform.OS === 'ios'
@@ -51,6 +40,19 @@ export class GLView extends React.Component {
                         : {}),
                 }, onSurfaceCreate: this._onSurfaceCreate, msaaSamples: Platform.OS === 'ios' ? msaaSamples : undefined })));
     }
+    _setNativeRef = (nativeRef) => {
+        if (this.props.nativeRef_EXPERIMENTAL) {
+            this.props.nativeRef_EXPERIMENTAL(nativeRef);
+        }
+        this.nativeRef = nativeRef;
+    };
+    _onSurfaceCreate = ({ nativeEvent: { exglCtxId } }) => {
+        const gl = getGl(exglCtxId);
+        this.exglCtxId = exglCtxId;
+        if (this.props.onContextCreate) {
+            this.props.onContextCreate(gl);
+        }
+    };
     async startARSessionAsync() {
         if (!ExponentGLViewManager.startARSessionAsync) {
             throw new UnavailabilityError('expo-gl', 'startARSessionAsync');
@@ -83,11 +85,8 @@ export class GLView extends React.Component {
         return await GLView.takeSnapshotAsync(exglCtxId, options);
     }
 }
-GLView.defaultProps = {
-    msaaSamples: 4,
-};
 GLView.NativeView = NativeView;
-// Get the GL interface from an EXGLContextID and do JS-side setup
+// Get the GL interface from an EXGLContextID
 const getGl = (exglCtxId) => {
     if (!global.__EXGLContexts) {
         throw new CodedError('ERR_GL_NOT_AVAILABLE', 'GL is currently not available. (Have you enabled remote debugging? GL is not available while debugging remotely.)');

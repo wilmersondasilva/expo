@@ -1,9 +1,14 @@
 import { Asset } from 'expo-asset';
+import { GLLoggingOption } from 'expo-gl';
 
 import GLWrap from './GLWrap';
 
 export default GLWrap('Basic texture use', async gl => {
+  console.log('erfwefwe', gl instanceof global.WebGL2RenderingContext);
   const vert = gl.createShader(gl.VERTEX_SHADER)!;
+  console.log('erfwefwe', vert instanceof global.WebGLObject);
+  gl.__expoSetLogging(GLLoggingOption.METHOD_CALLS);
+  console.log(gl.shaderSource === gl.__proto__.shaderSource);
   gl.shaderSource(
     vert,
     `
@@ -52,6 +57,7 @@ export default GLWrap('Basic texture use', async gl => {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, asset as any);
   gl.uniform1i(gl.getUniformLocation(program, 'texture'), 0);
+  gl.__expoSetLogging(GLLoggingOption.DISABLED);
 
   (async () => {
     await new Promise(resolve => setTimeout(resolve, 1000));

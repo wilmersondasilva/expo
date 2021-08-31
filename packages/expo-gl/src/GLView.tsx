@@ -165,7 +165,7 @@ export class GLView extends React.Component<GLViewProps> {
 
 GLView.NativeView = NativeView;
 
-// Get the GL interface from an EXGLContextID and do JS-side setup
+// Get the GL interface from an EXGLContextID
 const getGl = (exglCtxId: number): ExpoWebGLRenderingContext => {
   if (!global.__EXGLContexts) {
     throw new CodedError(
