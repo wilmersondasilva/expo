@@ -286,4 +286,14 @@ extension AnyModule {
   public static func prop<ViewType: UIView, PropType>(_ name: String, _ setter: @escaping (ViewType, PropType) -> Void) -> AnyDefinition {
     return ConcreteViewProp(name, setter)
   }
+
+  // MARK: - Objects
+
+  public func objects(_ types: [AnyHostObject.Type]) -> AnyDefinition {
+    return ObjectsDefinition(types: types)
+  }
+}
+
+public struct ObjectsDefinition: AnyDefinition {
+  let types: [AnyHostObject.Type]
 }

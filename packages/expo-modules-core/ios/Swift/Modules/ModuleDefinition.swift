@@ -24,6 +24,7 @@ public class ModuleDefinition: AnyDefinition {
   let constants: [String : Any?]
   let eventListeners: [EventListener]
   let viewManager: ViewManagerDefinition?
+  let objects: [ObjectsDefinition]
 
   /**
    Initializer that is called by the `ModuleDefinitionBuilder` results builder.
@@ -51,6 +52,9 @@ public class ModuleDefinition: AnyDefinition {
     self.viewManager = definitions
       .compactMap { $0 as? ViewManagerDefinition }
       .last
+
+    self.objects = definitions
+      .compactMap { $0 as? ObjectsDefinition }
   }
 
   /**
