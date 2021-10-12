@@ -61,6 +61,14 @@ public class ModuleRegistry: Sequence {
     return try? registry[moduleName]?.getInstance()
   }
 
+  public func getModuleNames() -> [String] {
+    return Array(registry.keys)
+  }
+
+  public func getNativeModuleObject(_ moduleName: String) -> JSIObject? {
+    return try? registry[moduleName]?.load().nativeObject
+  }
+
   public func makeIterator() -> IndexingIterator<[ModuleHolder]> {
     return registry.map({ $1 }).makeIterator()
   }

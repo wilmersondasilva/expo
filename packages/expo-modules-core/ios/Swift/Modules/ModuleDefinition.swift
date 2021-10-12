@@ -9,52 +9,30 @@ public protocol AnyDefinition {}
  of the module and what it exports to the JavaScript world.
  See `ModuleDefinitionBuilder` for more details on how to create it.
  */
-public class ModuleDefinition: AnyDefinition {
+public class ModuleDefinition: ObjectDefinition {
   /**
    The module's type associated with the definition. It's used to create the module instance.
    */
   var type: AnyModule.Type?
 
-  /**
-   Name of the defined module. Falls back to the type name if not provided in the definition.
-   */
-  var name: String
-
-  let methods: [String : AnyMethod]
-  let constants: [String : Any?]
   let eventListeners: [EventListener]
   let viewManager: ViewManagerDefinition?
-  let objects: [ObjectsDefinition]
+  let prototypes: [PrototypeDefinition]
 
   /**
    Initializer that is called by the `ModuleDefinitionBuilder` results builder.
    */
-  init(definitions: [AnyDefinition]) {
-    self.name = definitions
-      .compactMap { $0 as? ModuleNameDefinition }
-      .last?
-      .name ?? ""
+  override init(components: [AnyDefinition]) {
+    self.eventListeners = components.compactMap { $0 as? EventListener }
 
-    self.methods = definitions
-      .compactMap { $0 as? AnyMethod }
-      .reduce(into: [String : AnyMethod]()) { dict, method in
-        dict[method.name] = method
-      }
-
-    self.constants = definitions
-      .compactMap { $0 as? ConstantsDefinition }
-      .reduce(into: [String : Any?]()) { dict, definition in
-        dict.merge(definition.constants) { $1 }
-      }
-
-    self.eventListeners = definitions.compactMap { $0 as? EventListener }
-
-    self.viewManager = definitions
+    self.viewManager = components
       .compactMap { $0 as? ViewManagerDefinition }
       .last
 
-    self.objects = definitions
-      .compactMap { $0 as? ObjectsDefinition }
+    self.prototypes = components
+      .compactMap { $0 as? PrototypeDefinition }
+
+    super.init(components: components)
   }
 
   /**

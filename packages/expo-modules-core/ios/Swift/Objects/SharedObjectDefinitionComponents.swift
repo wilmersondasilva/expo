@@ -1,5 +1,5 @@
 
-extension AnyHostObject {
+extension AnySharedObject {
   public static func name(_ name: String) -> AnyDefinition {
     return ModuleNameDefinition(name: name)
   }

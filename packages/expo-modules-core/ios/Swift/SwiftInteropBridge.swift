@@ -43,7 +43,7 @@ public class SwiftInteropBridge: NSObject {
   public func callMethodSync(_ methodName: String,
                              onModule moduleName: String,
                              withArgs args: [Any]) -> Any? {
-    return registry
+    return try? registry
       .get(moduleHolderForName: moduleName)?
       .callSync(method: methodName, args: args)
   }
@@ -93,5 +93,23 @@ public class SwiftInteropBridge: NSObject {
         return nil
       }
     }
+  }
+
+  /**
+   Sets the JSI runtime on the operating `AppContext`.
+   */
+  @objc
+  public func setRuntime(_ runtime: JSIRuntime) {
+    appContext.runtime = runtime
+  }
+
+  @objc
+  public func getModuleNames() -> [String] {
+    return registry.getModuleNames()
+  }
+
+  @objc
+  public func getNativeModuleObject(_ name: String) -> JSIObject? {
+    return registry.getNativeModuleObject(name)
   }
 }

@@ -14,6 +14,11 @@ public class AppContext {
   public private(set) var legacyModuleRegistry: EXModuleRegistry?
 
   /**
+   JSI runtime of the running app.
+   */
+  public internal(set) var runtime: JSIRuntime?
+
+  /**
    Designated initializer without modules provider.
    */
   public init() {
