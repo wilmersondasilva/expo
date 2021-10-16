@@ -6,8 +6,8 @@
  */
 @resultBuilder
 public struct ModuleDefinitionBuilder {
-  public static func buildBlock(_ definitions: AnyDefinition...) -> ModuleDefinition {
-    return ModuleDefinition(definitions: definitions)
+  public static func buildBlock(_ components: AnyDefinition...) -> ModuleDefinition {
+    return ModuleDefinition(components: components)
   }
 }
 #endif

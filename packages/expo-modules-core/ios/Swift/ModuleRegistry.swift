@@ -11,20 +11,14 @@ public class ModuleRegistry: Sequence {
   }
 
   /**
-   Registers a module by its definition.
-   */
-  public func register(definition: ModuleDefinition) {
-    guard let appContext = appContext else {
-      return
-    }
-    registry[definition.name] = ModuleHolder(appContext: appContext, definition: definition)
-  }
-
-  /**
    Registers a module by its type.
    */
   public func register(moduleType: AnyModule.Type) {
-    register(definition: moduleType.definition().withType(moduleType))
+    guard let appContext = appContext else {
+      return
+    }
+    let holder = ModuleHolder(appContext: appContext, moduleType: moduleType)
+    registry[holder.name] = holder
   }
 
   /**
@@ -58,7 +52,7 @@ public class ModuleRegistry: Sequence {
   }
 
   public func get(moduleWithName moduleName: String) -> AnyModule? {
-    return try? registry[moduleName]?.getInstance()
+    return registry[moduleName]?.module
   }
 
   public func makeIterator() -> IndexingIterator<[ModuleHolder]> {
