@@ -26,9 +26,9 @@ public class ModuleHolder {
     return definition.name.isEmpty ? String(describing: type(of: module)) : definition.name
   }
 
-  init(appContext: AppContext, moduleType: AnyModule.Type) {
+  init(appContext: AppContext, module: AnyModule) {
     self.appContext = appContext
-    self.module = moduleType.init(appContext: appContext)
+    self.module = module
     self.definition = module.definition()
     post(event: .moduleCreate)
   }

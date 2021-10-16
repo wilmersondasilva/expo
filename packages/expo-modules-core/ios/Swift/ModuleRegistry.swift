@@ -11,14 +11,22 @@ public class ModuleRegistry: Sequence {
   }
 
   /**
+   Registers an instance of module holder.
+   */
+  internal func register(holder: ModuleHolder) {
+    registry[holder.name] = holder
+  }
+
+  /**
    Registers a module by its type.
    */
   public func register(moduleType: AnyModule.Type) {
     guard let appContext = appContext else {
       return
     }
-    let holder = ModuleHolder(appContext: appContext, moduleType: moduleType)
-    registry[holder.name] = holder
+    let module = moduleType.init(appContext: appContext)
+    let holder = ModuleHolder(appContext: appContext, module: module)
+    register(holder: holder)
   }
 
   /**

@@ -19,21 +19,14 @@ public class ConcreteMethod<Args, ReturnType>: AnyMethod {
 
   let argTypes: [AnyArgumentType]
 
-  /**
-   Determines whether the method should be called with the module instance.
-   */
-  let detached: Bool
-
   init(
     _ name: String,
     argTypes: [AnyArgumentType],
-    _ closure: @escaping ClosureType,
-    detached: Bool = false
+    _ closure: @escaping ClosureType
   ) {
     self.name = name
     self.argTypes = argTypes
     self.closure = closure
-    self.detached = detached
   }
 
   public func call(module: AnyModule, args: [Any?], promise: Promise) {
@@ -45,10 +38,6 @@ public class ConcreteMethod<Args, ReturnType>: AnyMethod {
 
       if takesPromise {
         finalArgs.append(promise)
-      }
-
-      if !self.detached {
-        finalArgs.insert(module, at: 0)
       }
 
       let tuple = try Conversions.toTuple(finalArgs) as! Args
