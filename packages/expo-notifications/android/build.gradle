@@ -80,7 +80,7 @@ dependencies {
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${safeExtGet('kotlinVersion', '1.4.21')}"
 
-  api 'com.google.firebase:firebase-messaging:20.2.4'
+  api 'com.google.firebase:firebase-messaging:22.0.0'
 
   api 'me.leolin:ShortcutBadger:1.1.22@aar'
 }
