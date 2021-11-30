@@ -448,6 +448,7 @@ const ROOT = [
   'Fundamentals',
   'Distributing Your App',
   'Assorted Guides',
+  'Expo Modules',
   'Expo Accounts',
   'Bare Workflow',
   'Push Notifications',
