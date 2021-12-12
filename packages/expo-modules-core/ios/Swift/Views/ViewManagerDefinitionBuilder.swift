@@ -5,7 +5,7 @@
  */
 @resultBuilder
 public struct ViewManagerDefinitionBuilder {
-  public static func buildBlock(_ definitions: AnyDefinition...) -> ViewManagerDefinition {
+  public static func buildBlock(_ definitions: AnyViewManagerDefinitionComponent...) -> ViewManagerDefinition {
     return ViewManagerDefinition(definitions: definitions)
   }
 }
