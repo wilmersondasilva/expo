@@ -9,10 +9,10 @@ import { HomeScreen, HomeScreenProps } from '../HomeScreen';
 jest.mock('../../functions/getLocalDevSessionsAsync');
 jest.mock('../../hooks/useDebounce');
 
-const mockgetLocalDevSessionsAsync = getLocalDevSessionsAsync as jest.Mock;
+const mockGetDevSessionsAsync = getLocalDevSessionsAsync as jest.Mock;
 
 function mockGetDevSessionsResponse(response: DevSession[]) {
-  return mockgetLocalDevSessionsAsync.mockResolvedValueOnce(response);
+  return mockGetDevSessionsAsync.mockResolvedValueOnce(response);
 }
 
 const devSessionInstructionsRegex = /start a local development server with/i;
@@ -40,17 +40,17 @@ describe('<HomeScreen />', () => {
   });
 
   test('fetching local DevSessions on mount', async () => {
-    mockgetLocalDevSessionsAsync.mockResolvedValue(fakeDevSessions);
+    mockGetDevSessionsAsync.mockResolvedValue(fakeDevSessions);
 
     const { getByText, queryByText } = renderHomeScreen({
       fetchOnMount: true,
       initialDevSessions: [],
     });
 
-    expect(queryByText(fakeLocalDevSession.name)).toBe(null);
+    expect(queryByText(fakeLocalDevSession.description)).toBe(null);
 
-    await waitFor(() => getByText(fakeLocalDevSession.name));
-    await waitFor(() => getByText(fakeLocalDevSession2.name));
+    await waitFor(() => getByText(fakeLocalDevSession.description));
+    await waitFor(() => getByText(fakeLocalDevSession2.description));
   });
 
   test('refetching local DevSessions on button press', async () => {
@@ -59,16 +59,16 @@ describe('<HomeScreen />', () => {
       initialDevSessions: [],
     });
 
-    mockgetLocalDevSessionsAsync.mockClear();
+    mockGetDevSessionsAsync.mockClear();
     mockGetDevSessionsResponse([fakeDevSessions[0]]);
-    expect(() => getByText(fakeDevSessions[0].name)).toThrow();
+    expect(() => getByText(fakeDevSessions[0].description)).toThrow();
     expect(getLocalDevSessionsAsync).not.toHaveBeenCalled();
 
     await refetch();
     expect(getByText(fetchingDevSessionsRegex));
     expect(getLocalDevSessionsAsync).toHaveBeenCalled();
 
-    await waitFor(() => getByText(fakeDevSessions[0].name));
+    await waitFor(() => getByText(fakeDevSessions[0].description));
   });
 
   test('refetching enabled after polling is completed', async () => {
@@ -81,7 +81,7 @@ describe('<HomeScreen />', () => {
       initialDevSessions: [],
     });
 
-    mockgetLocalDevSessionsAsync.mockClear();
+    mockGetDevSessionsAsync.mockClear();
 
     await act(async () => {
       await waitFor(() => getByText(refetchDevSessionsRegex));
@@ -136,19 +136,12 @@ describe('<HomeScreen />', () => {
 
   test.todo('display for a valid url that is not found');
 
-  test('select DevSession from DevSession list', async () => {
-    const fakeLocalDevSession: DevSession = {
-      url: 'hello',
-      name: 'fakeDevSessionName',
-    };
-
-    mockGetDevSessionsResponse([fakeLocalDevSession]);
-
+  test('select dev session from list', async () => {
     const { getByText } = renderHomeScreen();
 
-    await waitFor(() => getByText(fakeLocalDevSession.name));
+    await waitFor(() => getByText(fakeLocalDevSession.description));
 
-    fireEvent.press(getByText(fakeLocalDevSession.name));
+    fireEvent.press(getByText(fakeLocalDevSession.description));
     expect(loadApp).toHaveBeenCalled();
     expect(loadApp).toHaveBeenCalledWith(fakeLocalDevSession.url);
   });
@@ -168,13 +161,15 @@ describe('<HomeScreen />', () => {
 });
 
 const fakeLocalDevSession: DevSession = {
-  url: 'hello',
-  name: 'fakeDevSessionName1',
+  url: 'test://url321',
+  description: 'fakeDevSessiondescription1',
+  source: 'desktop',
 };
 
 const fakeLocalDevSession2: DevSession = {
-  url: 'hello',
-  name: 'fakeDevSessionName2',
+  url: 'test://url123',
+  description: 'fakeDevSessiondescription2',
+  source: 'desktop',
 };
 
 const fakeDevSessions = [fakeLocalDevSession, fakeLocalDevSession2];
