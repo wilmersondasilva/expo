@@ -1,4 +1,4 @@
-export const loadApp = jest.fn();
+export const loadApp = jest.fn().mockResolvedValue('');
 export const clientUrlScheme = '123';
 export const getBuildInfoAsync = jest.fn().mockResolvedValue({
   appName: '',

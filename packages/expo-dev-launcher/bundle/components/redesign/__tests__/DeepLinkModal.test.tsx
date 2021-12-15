@@ -1,12 +1,9 @@
-import * as React from 'react';
-
 import { Packager } from '../../../functions/getLocalPackagersAsync';
 import {
   getPendingDeepLink,
   addDeepLinkListener,
 } from '../../../native-modules/DevLauncherInternal';
-import { render, act, waitFor, fireEvent } from '../../../test-utils';
-import { PendingDeepLinkPrompt } from '../PendingDeepLinkPrompt';
+import { render, act, waitFor } from '../../../test-utils';
 
 const mockGetPendingDeepLink = getPendingDeepLink as jest.Mock;
 const mockAddDeepLinkListener = addDeepLinkListener as jest.Mock;
@@ -18,7 +15,7 @@ const fakeLocalPackager: Packager = {
   source: 'test',
 };
 
-describe('<PendingDeepLinkPrompt />', () => {
+describe('<DeepLinkPrompt />', () => {
   afterEach(() => {
     mockGetPendingDeepLink.mockClear();
     mockAddDeepLinkListener.mockClear();
@@ -30,7 +27,7 @@ describe('<PendingDeepLinkPrompt />', () => {
 
     expect(getPendingDeepLink).not.toHaveBeenCalled();
 
-    const { getByText, queryByText } = render(<PendingDeepLinkPrompt />);
+    const { getByText, queryByText } = render(null);
 
     expect(queryByText(fakeDeepLink)).toBe(null);
 
@@ -41,27 +38,11 @@ describe('<PendingDeepLinkPrompt />', () => {
     });
   });
 
-  test('shows and hides modal', async () => {
-    const fakeDeepLink = 'testing-testing-123';
-    mockGetPendingDeepLink.mockResolvedValueOnce(fakeDeepLink);
-
-    const { getByText, queryByText } = render(<PendingDeepLinkPrompt />);
-
-    expect(queryByText(fakeDeepLink)).toBe(null);
-    expect(queryByText(/open somewhere else/i)).toBe(null);
-
-    await act(async () => {
-      const closeButton = await waitFor(() => getByText(/open somewhere else/i));
-      fireEvent.press(closeButton);
-      await waitFor(() => expect(queryByText(/open somewhere else/i)).toBe(null));
-    });
-  });
-
   test('shows packagers in modal', async () => {
     const fakeDeepLink = 'testing-testing-123';
     mockGetPendingDeepLink.mockResolvedValueOnce(fakeDeepLink);
 
-    const { getByText } = render(<PendingDeepLinkPrompt />, {
+    const { getByText } = render(null, {
       initialAppProviderProps: { initialPackagers: [fakeLocalPackager] },
     });
 
@@ -74,7 +55,7 @@ describe('<PendingDeepLinkPrompt />', () => {
   test('calls subscription on mount', async () => {
     expect(addDeepLinkListener).not.toHaveBeenCalled();
 
-    render(<PendingDeepLinkPrompt />);
+    render(null);
 
     await act(async () => {
       expect(addDeepLinkListener).toHaveBeenCalled();

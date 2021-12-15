@@ -43,3 +43,5 @@ export async function copyToClipboardAsync(content: string): Promise<null> {
 }
 
 export const clientUrlScheme = DevLauncher.clientUrlScheme;
+
+export const isDevice = !!DevLauncher.isDevice;

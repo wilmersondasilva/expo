@@ -13,15 +13,16 @@ import {
   ChevronRightIcon,
 } from 'expo-dev-client-components';
 import * as React from 'react';
-import { ScrollView } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 
 import { AppHeader } from '../components/redesign/AppHeader';
 import { PulseIndicator } from '../components/redesign/PulseIndicator';
 import { UrlDropdown } from '../components/redesign/UrlDropdown';
-import { Packager } from '../functions/getLocalPackagersAsync';
 import { useBuildInfo } from '../hooks/useBuildInfo';
-import { useLocalPackagers } from '../hooks/useLocalPackagers';
-import { loadApp, getRecentlyOpenedApps } from '../native-modules/DevLauncherInternal';
+import { useDevSessions } from '../hooks/useDevSessions';
+import { useRecentlyOpenedApps } from '../hooks/useRecentlyOpenedApps';
+import { loadApp } from '../native-modules/DevLauncherInternal';
+import { DevSession } from '../types';
 
 export type HomeScreenProps = {
   fetchOnMount?: boolean;
@@ -36,25 +37,31 @@ export function HomeScreen({
   pollAmount = 5,
   navigation,
 }: HomeScreenProps) {
-  const { data, pollAsync, isFetching } = useLocalPackagers();
+  const { data: devSessions, pollAsync, isFetching } = useDevSessions();
 
   const buildInfo = useBuildInfo();
   const { appName, appIcon } = buildInfo;
 
-  const initialPackagerData = React.useRef(data);
+  const initialDevSessionData = React.useRef(devSessions);
 
   React.useEffect(() => {
-    if (initialPackagerData.current.length === 0 && fetchOnMount) {
+    if (initialDevSessionData.current.length === 0 && fetchOnMount) {
       pollAsync({ pollAmount, pollInterval });
     }
   }, [fetchOnMount, pollInterval, pollAmount, pollAsync]);
 
-  const onPackagerPress = async (packager: Packager) => {
-    await loadApp(packager.url);
+  const onLoadUrl = (url: string) => {
+    loadApp(url).catch((error) => {
+      Alert.alert('Oops!', error.message);
+    });
+  };
+
+  const onDevSessionPress = async (devSession: DevSession) => {
+    onLoadUrl(devSession.url);
   };
 
   const onUrlSubmit = async (url: string) => {
-    await loadApp(url);
+    onLoadUrl(url);
   };
 
   const onRefetchPress = () => {
@@ -66,7 +73,7 @@ export function HomeScreen({
   };
 
   const onAppPress = async (url: string) => {
-    await loadApp(url);
+    onLoadUrl(url);
   };
 
   return (
@@ -94,8 +101,8 @@ export function HomeScreen({
 
         <View px="medium">
           <View>
-            {data?.length > 0 ? (
-              <LocalPackagersList packagers={data} onPackagerPress={onPackagerPress} />
+            {devSessions?.length > 0 ? (
+              <DevSessionList devSessions={devSessions} onDevSessionPress={onDevSessionPress} />
             ) : (
               <>
                 <View padding="medium" bg="default" roundedTop="large">
@@ -113,7 +120,7 @@ export function HomeScreen({
               </>
             )}
 
-            <FetchLocalPackagersRow isFetching={isFetching} onRefetchPress={onRefetchPress} />
+            <FetchDevSessionsRow isFetching={isFetching} onRefetchPress={onRefetchPress} />
 
             <Divider />
 
@@ -129,12 +136,12 @@ export function HomeScreen({
   );
 }
 
-type FetchLocalPackagersRowProps = {
+type FetchDevSessionsRowProps = {
   isFetching: boolean;
   onRefetchPress: () => void;
 };
 
-function FetchLocalPackagersRow({ isFetching, onRefetchPress }: FetchLocalPackagersRowProps) {
+function FetchDevSessionsRow({ isFetching, onRefetchPress }: FetchDevSessionsRowProps) {
   const theme = useExpoTheme();
   const backgroundColor = isFetching ? theme.status.info : theme.status.default;
 
@@ -144,7 +151,7 @@ function FetchLocalPackagersRow({ isFetching, onRefetchPress }: FetchLocalPackag
         <PulseIndicator isActive={isFetching} color={backgroundColor} />
         <Spacer.Horizontal size="small" />
         <Button.Text size="large" color="default">
-          {isFetching ? 'Searching for local servers...' : 'Refetch local servers'}
+          {isFetching ? 'Searching for development servers...' : 'Refetch development servers'}
         </Button.Text>
         <Spacer.Horizontal size="flex" />
         {!isFetching && <RefreshIcon />}
@@ -153,30 +160,32 @@ function FetchLocalPackagersRow({ isFetching, onRefetchPress }: FetchLocalPackag
   );
 }
 
-type LocalPackagersListProps = {
-  packagers?: Packager[];
-  onPackagerPress: (packager: Packager) => void;
+type DevSessionListProps = {
+  devSessions?: DevSession[];
+  onDevSessionPress: (devSession: DevSession) => void;
 };
 
-function LocalPackagersList({ packagers = [], onPackagerPress }: LocalPackagersListProps) {
-  if (packagers.length === 0) {
+function DevSessionList({ devSessions = [], onDevSessionPress }: DevSessionListProps) {
+  if (devSessions.length === 0) {
     return null;
   }
 
   return (
     <View>
-      {packagers.map((packager) => {
+      {devSessions.map((devSession) => {
         return (
-          <View key={packager.description}>
+          <View key={devSession.url}>
             <Button.ScaleOnPressContainer
-              onPress={() => onPackagerPress(packager)}
+              onPress={() => onDevSessionPress(devSession)}
               roundedTop="large"
               roundedBottom="none"
               bg="default">
               <Row align="center" padding="medium">
                 <StatusIndicator size="small" status="success" />
                 <Spacer.Horizontal size="small" />
-                <Button.Text color="default">{packager.description}</Button.Text>
+                <Button.Text color="default" numberOfLines={1} style={{ flexShrink: 1 }}>
+                  {devSession.description}
+                </Button.Text>
                 <Spacer.Horizontal size="flex" />
                 <ChevronRightIcon />
               </Row>
@@ -190,20 +199,7 @@ function LocalPackagersList({ packagers = [], onPackagerPress }: LocalPackagersL
 }
 
 function RecentlyOpenedApps({ onAppPress }) {
-  const [apps, setApps] = React.useState([]);
-
-  React.useEffect(() => {
-    getRecentlyOpenedApps().then((apps) => {
-      const formattedApps = Object.entries(apps).map(([url, name]) => {
-        return {
-          url,
-          name,
-        };
-      });
-
-      setApps(formattedApps);
-    });
-  }, []);
+  const { data: apps } = useRecentlyOpenedApps();
 
   if (apps.length === 0) {
     return null;
@@ -224,7 +220,7 @@ function RecentlyOpenedApps({ onAppPress }) {
           const label = app.name ?? app.url;
 
           return (
-            <View key={label}>
+            <View key={app.url}>
               <Button.ScaleOnPressContainer
                 onPress={() => onAppPress(app.url)}
                 roundedTop={isFirst ? 'large' : 'none'}

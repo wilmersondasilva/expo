@@ -82,6 +82,7 @@ export const Row = create(RNView, {
 
   variants: {
     bg,
+    
 
     align: {
       center: { alignItems: 'center' },
