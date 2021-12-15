@@ -5,7 +5,7 @@ import EXDevMenuInterface
 class DevMenuExpoApiClient: NSObject, DevMenuExpoApiClientProtocol {
   private static let authHeader = "expo-session"
   
-  private static let origin = "https://staging.exp.host"
+  private static let origin = "https://exp.host"
   private static let graphQLEndpoint = URL(string: "\(DevMenuExpoApiClient.origin)/--/graphql")!
   private static let restEndpoint = URL(string: "\(DevMenuExpoApiClient.origin)/--/api/v2/")!
   
