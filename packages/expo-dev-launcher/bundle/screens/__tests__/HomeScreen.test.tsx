@@ -1,7 +1,14 @@
 import * as React from 'react';
 
 import { getLocalDevSessionsAsync } from '../../functions/getLocalDevSessionsAsync';
-import { clientUrlScheme, loadApp } from '../../native-modules/DevLauncherInternal';
+import { UserData } from '../../functions/getUserProfileAsync';
+import { RecentApp } from '../../hooks/useRecentlyOpenedApps';
+import {
+  clientUrlScheme,
+  getRecentlyOpenedApps,
+  loadApp,
+} from '../../native-modules/DevLauncherInternal';
+import { queryDevSessionsAsync } from '../../native-modules/DevMenu';
 import { render, waitFor, fireEvent, act } from '../../test-utils';
 import { DevSession } from '../../types';
 import { HomeScreen, HomeScreenProps } from '../HomeScreen';
@@ -10,6 +17,10 @@ jest.mock('../../functions/getLocalDevSessionsAsync');
 jest.mock('../../hooks/useDebounce');
 
 const mockGetDevSessionsAsync = getLocalDevSessionsAsync as jest.Mock;
+const mockQueryDevSessionsAsync = queryDevSessionsAsync as jest.Mock;
+const mockGetRecentlyOpenedApps = getRecentlyOpenedApps as jest.Mock;
+
+const mockFns = [mockGetDevSessionsAsync, mockQueryDevSessionsAsync, mockGetRecentlyOpenedApps];
 
 function mockGetDevSessionsResponse(response: DevSession[]) {
   return mockGetDevSessionsAsync.mockResolvedValueOnce(response);
@@ -24,6 +35,10 @@ const textInputPlaceholder = `${clientUrlScheme}://expo-development-client/...`;
 const mockLoadApp = loadApp as jest.Mock;
 
 describe('<HomeScreen />', () => {
+  beforeEach(() => {
+    mockFns.forEach((fn) => fn.mockClear());
+  });
+
   afterEach(() => {
     mockLoadApp.mockReset();
     mockLoadApp.mockResolvedValue('');
@@ -158,6 +173,65 @@ describe('<HomeScreen />', () => {
       expect(fakeNavigation.navigate).toHaveBeenLastCalledWith('User Profile');
     });
   });
+
+  test('displays dev sessions for authenticated users', async () => {
+    expect(queryDevSessionsAsync).not.toHaveBeenCalled();
+
+    const fakeDevSession: DevSession = {
+      description: 'devSession1',
+      source: 'desktop',
+      url: 'http://10.0.0.225:12',
+    };
+
+    const fakeDevSession2: DevSession = {
+      description: 'devSession2',
+      source: 'desktop',
+      url: 'http://10.0.0.225:134',
+    };
+
+    mockQueryDevSessionsAsync.mockResolvedValueOnce([fakeDevSession, fakeDevSession2]);
+
+    const { getByText, queryByText } = renderHomeScreen({
+      fetchOnMount: true,
+      pollAmount: 1,
+      initialDevSessions: [],
+      initialUserData: {
+        username: 'hi',
+        id: '1234',
+        appCount: 1,
+        email: '123@321.ca',
+        profilePhoto: '123',
+        accounts: [{ id: '1', name: 'Joe', owner: { username: '123', fullName: 'Joe' } }],
+      },
+    });
+
+    expect(queryByText(fakeDevSession.description)).toBe(null);
+    expect(queryByText(fakeDevSession2.description)).toBe(null);
+
+    await waitFor(() => expect(queryDevSessionsAsync).toHaveBeenCalled());
+
+    getByText(fakeDevSession.description);
+    getByText(fakeDevSession2.description);
+  });
+
+  test('displays recently opened apps', async () => {
+    expect(getRecentlyOpenedApps).not.toHaveBeenCalled();
+    const fakeApp: RecentApp = {
+      name: 'fakeAppName',
+      url: 'fakeAppUrl',
+    };
+
+    mockGetRecentlyOpenedApps.mockResolvedValueOnce({ [fakeApp.name]: fakeApp.url });
+
+    const { queryByText, getByText } = renderHomeScreen();
+
+    expect(queryByText(fakeApp.name)).toBe(null);
+
+    await act(async () => {
+      await waitFor(() => getByText(fakeApp.url));
+      expect(getRecentlyOpenedApps).toHaveBeenCalled();
+    });
+  });
 });
 
 const fakeLocalDevSession: DevSession = {
@@ -180,11 +254,13 @@ const fakeNavigation = {
 
 type RenderHomeScreenOptions = HomeScreenProps & {
   initialDevSessions?: DevSession[];
+  initialUserData?: UserData;
 };
 
 function renderHomeScreen(options: RenderHomeScreenOptions = {}) {
   const {
     initialDevSessions = fakeDevSessions,
+    initialUserData = undefined,
     fetchOnMount = false,
     pollInterval = 0,
     pollAmount = 5,
@@ -202,6 +278,7 @@ function renderHomeScreen(options: RenderHomeScreenOptions = {}) {
     {
       initialAppProviderProps: {
         initialDevSessions,
+        initialUserData,
       },
     }
   );
