@@ -1819,6 +1819,7 @@ PODS:
     - ExpoModulesCore
   - EXAV (10.2.0):
     - ExpoModulesCore
+    - React-runtimeexecutor
     - ReactCommon
   - EXBackgroundFetch (10.1.0):
     - ExpoModulesCore
@@ -4180,7 +4181,7 @@ SPEC CHECKSUMS:
   EXAppAuth: 628fbc475121581364241f9f12fc082f23d0b567
   EXAppleAuthentication: 27a4f7dc44a1b510f5af945b58643165ee486d89
   EXApplication: bdc8dc27713235565da1029a34385229f31b8e08
-  EXAV: 048dd4d39557bdfd950d4ff364974123eb9d8bbd
+  EXAV: ea29fdc06e9bfe970a44dd4fd1656fbfcfb3231c
   EXBackgroundFetch: 12e8a8c522a2d2c5be07168d74af76567841f023
   EXBarCodeScanner: 0c10fb2bda9e188450b58cc89f7c6177b73f5c25
   EXBattery: 097a76ebb674c57d3df6e1ebcd6e243d569161b5
