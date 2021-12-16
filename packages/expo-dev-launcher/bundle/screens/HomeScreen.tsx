@@ -85,7 +85,7 @@ export function HomeScreen({
   };
 
   return (
-    <ScrollView>
+    <View>
       <View bg="default">
         <AppHeader
           title={appName}
@@ -94,72 +94,73 @@ export function HomeScreen({
           onUserProfilePress={onUserProfilePress}
         />
       </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+        <View py="large">
+          <Row px="medium" align="center">
+            <View px="small">
+              <TerminalIcon />
+            </View>
+            <Heading size="small" color="secondary">
+              Development servers
+            </Heading>
 
-      <View py="large">
-        <Row px="medium" align="center">
-          <View px="small">
-            <TerminalIcon />
-          </View>
-          <Heading size="small" color="secondary">
-            Development servers
-          </Heading>
-
-          <Spacer.Horizontal size="flex" />
-          {devSessions.length > 0 && (
-            <Button.ScaleOnPressContainer
-              bg="ghost"
-              rounded="full"
-              onPress={onDevServerQuestionPress}>
-              <View padding="small" rounded="full" border="default">
-                <QuestionMarkIcon size="tiny" style={{ resizeMode: 'cover' }} />
-              </View>
-            </Button.ScaleOnPressContainer>
-          )}
-        </Row>
-
-        <Spacer.Vertical size="small" />
-
-        <View px="medium">
-          <View>
-            {devSessions.length === 0 && (
-              <>
-                <View padding="medium" bg="default" roundedTop="large">
-                  <Text size="medium">Start a local development server with:</Text>
-                  <Spacer.Vertical size="small" />
-
-                  <View bg="secondary" border="default" rounded="medium" padding="medium">
-                    <Text type="mono">expo start</Text>
-                  </View>
-
-                  <Spacer.Vertical size="small" />
-                  <Text>Then, select the local server when it appears here.</Text>
-                  <Spacer.Vertical size="small" />
-                  <Text>
-                    Alternatively, open the Camera app and scan the QR code that appears in your
-                    terminal
-                  </Text>
+            <Spacer.Horizontal size="flex" />
+            {devSessions.length > 0 && (
+              <Button.ScaleOnPressContainer
+                bg="ghost"
+                rounded="full"
+                onPress={onDevServerQuestionPress}>
+                <View rounded="full" border="default" style={{ padding: 8 }}>
+                  <QuestionMarkIcon size="tiny" style={{ resizeMode: 'cover' }} />
                 </View>
-                <Divider />
-              </>
+              </Button.ScaleOnPressContainer>
             )}
+          </Row>
 
-            {devSessions?.length > 0 && (
-              <DevSessionList devSessions={devSessions} onDevSessionPress={onDevSessionPress} />
-            )}
+          <Spacer.Vertical size="small" />
 
-            <FetchDevSessionsRow isFetching={isFetching} onRefetchPress={onRefetchPress} />
+          <View px="medium">
+            <View>
+              {devSessions.length === 0 && (
+                <>
+                  <View padding="medium" bg="default" roundedTop="large">
+                    <Text size="medium">Start a local development server with:</Text>
+                    <Spacer.Vertical size="small" />
 
-            <Divider />
+                    <View bg="secondary" border="default" rounded="medium" padding="medium">
+                      <Text type="mono">expo start</Text>
+                    </View>
 
-            <UrlDropdown onSubmit={onUrlSubmit} />
+                    <Spacer.Vertical size="small" />
+                    <Text>Then, select the local server when it appears here.</Text>
+                    <Spacer.Vertical size="small" />
+                    <Text>
+                      Alternatively, open the Camera app and scan the QR code that appears in your
+                      terminal
+                    </Text>
+                  </View>
+                  <Divider />
+                </>
+              )}
+
+              {devSessions?.length > 0 && (
+                <DevSessionList devSessions={devSessions} onDevSessionPress={onDevSessionPress} />
+              )}
+
+              <FetchDevSessionsRow isFetching={isFetching} onRefetchPress={onRefetchPress} />
+
+              <Divider />
+
+              <UrlDropdown onSubmit={onUrlSubmit} />
+            </View>
           </View>
+
+          <Spacer.Vertical size="medium" />
+
+          <RecentlyOpenedApps onAppPress={onAppPress} />
         </View>
-
-        <Spacer.Vertical size="medium" />
-
-        <RecentlyOpenedApps onAppPress={onAppPress} />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

@@ -57,54 +57,55 @@ export function DeepLinkModal({ onClosePress, pendingDeepLink }) {
         <Spacer.Vertical size="large" />
         <View px="medium">
           {items.length > 0 ? (
-            <ScrollView style={{ maxHeight: 300 }}>
+            <>
               <Text size="large">Select an app to open it:</Text>
+              <ScrollView style={{ maxHeight: 300 }}>
+                <Spacer.Vertical size="medium" />
+                {devSessions.length > 0 && (
+                  <View>
+                    {devSessions.map((devSession, index, arr) => {
+                      return (
+                        <View key={devSession.url} rounded="medium">
+                          <Button.Container onPress={() => onDevSessionPress(devSession)}>
+                            <Row align="center" py="medium" px="small">
+                              <StatusIndicator size="small" status="success" />
+                              <Spacer.Horizontal size="small" />
+                              <Text style={{ flexShrink: 1 }} numberOfLines={1}>
+                                {devSession.description}
+                              </Text>
+                              <Spacer.Horizontal size="flex" />
+                              <ChevronRightIcon />
+                            </Row>
+                          </Button.Container>
+                          <Divider />
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
 
-              <Spacer.Vertical size="medium" />
-              {devSessions.length > 0 && (
-                <View>
-                  {devSessions.map((devSession, index, arr) => {
-                    return (
-                      <View key={devSession.url} rounded="medium">
-                        <Button.Container onPress={() => onDevSessionPress(devSession)}>
-                          <Row align="center" py="medium" px="small">
-                            <StatusIndicator size="small" status="success" />
-                            <Spacer.Horizontal size="small" />
-                            <Text style={{ flexShrink: 1 }} numberOfLines={1}>
-                              {devSession.description}
-                            </Text>
-                            <Spacer.Horizontal size="flex" />
-                            <ChevronRightIcon />
-                          </Row>
-                        </Button.Container>
-                        <Divider />
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-
-              {apps.length > 0 && (
-                <View>
-                  {apps.map((app, index, arr) => {
-                    return (
-                      <View key={app.url} rounded="medium">
-                        <Button.Container onPress={() => onDevSessionPress(app)}>
-                          <Row align="center" py="medium" px="small">
-                            <StatusIndicator size="small" status="success" />
-                            <Spacer.Horizontal size="small" />
-                            <Text>{app.name}</Text>
-                            <Spacer.Horizontal size="flex" />
-                            <ChevronRightIcon />
-                          </Row>
-                        </Button.Container>
-                        <Divider />
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-            </ScrollView>
+                {apps.length > 0 && (
+                  <View>
+                    {apps.map((app, index, arr) => {
+                      return (
+                        <View key={app.url} rounded="medium">
+                          <Button.Container onPress={() => onDevSessionPress(app)}>
+                            <Row align="center" py="medium" px="small">
+                              <StatusIndicator size="small" status="success" />
+                              <Spacer.Horizontal size="small" />
+                              <Text>{app.name}</Text>
+                              <Spacer.Horizontal size="flex" />
+                              <ChevronRightIcon />
+                            </Row>
+                          </Button.Container>
+                          <Divider />
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              </ScrollView>
+            </>
           ) : (
             !isFetching && (
               <>
@@ -125,8 +126,10 @@ export function DeepLinkModal({ onClosePress, pendingDeepLink }) {
         <Spacer.Vertical size="large" />
 
         <View px="medium">
-          <Text weight="bold">Note:</Text>
-          <Text>The next app you open will receive this link</Text>
+          <Text>
+            <Text weight="bold">Note: </Text>
+            The next app you open will receive this link
+          </Text>
 
           <Spacer.Vertical size="medium" />
 
