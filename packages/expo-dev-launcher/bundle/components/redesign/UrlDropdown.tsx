@@ -43,7 +43,7 @@ export function UrlDropdown({ onSubmit }: UrlDropdownProps) {
   const throttleValidationInterval = 500;
 
   const onChangeText = (input: string) => {
-    if (!isValidUrl) {
+    if (!isValidUrl && input !== '') {
       if (Date.now() >= lastExecuted.current + throttleValidationInterval) {
         setIsValidUrl(validateUrl(input));
         lastExecuted.current = Date.now();

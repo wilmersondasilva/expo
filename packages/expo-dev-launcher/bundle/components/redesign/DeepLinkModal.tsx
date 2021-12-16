@@ -11,25 +11,18 @@ import {
   Divider,
 } from 'expo-dev-client-components';
 import * as React from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 
 import { useDevSessions } from '../../hooks/useDevSessions';
 import { useRecentlyOpenedApps } from '../../hooks/useRecentlyOpenedApps';
 import { loadApp } from '../../native-modules/DevLauncherInternal';
 
-export function DeepLinkModal({ onClosePress, pendingDeepLink }) {
-  const { data: devSessions = [], isFetching: isFetchingDevSessions } = useDevSessions();
-  const { data: apps = [], isFetching: isFetchingApps } = useRecentlyOpenedApps();
+type DeepLinkModalProps = {
+  pendingDeepLink: string;
+  onClosePress: () => void;
+};
 
-  const onDevSessionPress = ({ url }: { url: string }) => {
-    loadApp(url).catch((error) => {
-      Alert.alert('Oops', error.message);
-    });
-  };
-
-  const isFetching = isFetchingDevSessions || isFetchingApps;
-  const items = [...devSessions, ...apps];
-
+export function DeepLinkModal({ onClosePress, pendingDeepLink }: DeepLinkModalProps) {
   return (
     <View padding="large" style={{ flex: 1, justifyContent: 'center' }}>
       <View py="medium" rounded="large" bg="default" shadow="small">
@@ -55,73 +48,8 @@ export function DeepLinkModal({ onClosePress, pendingDeepLink }) {
         </View>
 
         <Spacer.Vertical size="large" />
-        <View px="medium">
-          {items.length > 0 ? (
-            <>
-              <Text size="large">Select an app to open it:</Text>
-              <ScrollView style={{ maxHeight: 300 }}>
-                <Spacer.Vertical size="medium" />
-                {devSessions.length > 0 && (
-                  <View>
-                    {devSessions.map((devSession, index, arr) => {
-                      return (
-                        <View key={devSession.url} rounded="medium">
-                          <Button.Container onPress={() => onDevSessionPress(devSession)}>
-                            <Row align="center" py="medium" px="small">
-                              <StatusIndicator size="small" status="success" />
-                              <Spacer.Horizontal size="small" />
-                              <Text style={{ flexShrink: 1 }} numberOfLines={1}>
-                                {devSession.description}
-                              </Text>
-                              <Spacer.Horizontal size="flex" />
-                              <ChevronRightIcon />
-                            </Row>
-                          </Button.Container>
-                          <Divider />
-                        </View>
-                      );
-                    })}
-                  </View>
-                )}
 
-                {apps.length > 0 && (
-                  <View>
-                    {apps.map((app, index, arr) => {
-                      return (
-                        <View key={app.url} rounded="medium">
-                          <Button.Container onPress={() => onDevSessionPress(app)}>
-                            <Row align="center" py="medium" px="small">
-                              <StatusIndicator size="small" status="success" />
-                              <Spacer.Horizontal size="small" />
-                              <Text>{app.name}</Text>
-                              <Spacer.Horizontal size="flex" />
-                              <ChevronRightIcon />
-                            </Row>
-                          </Button.Container>
-                          <Divider />
-                        </View>
-                      );
-                    })}
-                  </View>
-                )}
-              </ScrollView>
-            </>
-          ) : (
-            !isFetching && (
-              <>
-                <Text size="large" weight="medium">
-                  Can't find any packagers
-                </Text>
-
-                <Spacer.Vertical size="medium" />
-
-                <Text>The next app launched will receive the deep link above</Text>
-
-                <Spacer.Vertical size="large" />
-              </>
-            )
-          )}
-        </View>
+        <PackagersList />
 
         <Spacer.Vertical size="large" />
 
@@ -146,6 +74,97 @@ export function DeepLinkModal({ onClosePress, pendingDeepLink }) {
           </Button.ScaleOnPressContainer>
         </View>
       </View>
+    </View>
+  );
+}
+
+function PackagersList() {
+  const { data: devSessions = [], isFetching: isFetchingDevSessions } = useDevSessions();
+  const { data: recentlyOpenedApps = [], isFetching: isFetchingApps } = useRecentlyOpenedApps();
+
+  const isFetching = isFetchingDevSessions || isFetchingApps;
+
+  const onPackagerPress = ({ url }: { url: string }) => {
+    loadApp(url).catch((error) => {
+      Alert.alert('Oops', error.message);
+    });
+  };
+
+  if (isFetching) {
+    return <ActivityIndicator />;
+  }
+
+  const hasPackagers = devSessions.length > 0 || recentlyOpenedApps.length > 0;
+
+  if (!hasPackagers) {
+    return (
+      <View px="medium">
+        <Text size="large" weight="medium">
+          Unable to find any packagers
+        </Text>
+
+        <Spacer.Vertical size="small" />
+        <Text size="medium">Start a local development server with:</Text>
+        <Spacer.Vertical size="small" />
+
+        <View bg="secondary" border="default" rounded="medium" padding="medium">
+          <Text type="mono">expo start</Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View px="medium">
+      <Text size="large">Select an app to open it:</Text>
+      <ScrollView style={{ maxHeight: 300 }}>
+        <Spacer.Vertical size="medium" />
+        {devSessions.length > 0 && (
+          <>
+            {devSessions.map((devSession) => {
+              return (
+                <PackagerRow
+                  key={devSession.url}
+                  label={devSession.description}
+                  onPress={() => onPackagerPress(devSession)}
+                />
+              );
+            })}
+          </>
+        )}
+
+        {recentlyOpenedApps.length > 0 && (
+          <>
+            {recentlyOpenedApps.map((app) => {
+              return (
+                <PackagerRow key={app.url} label={app.name} onPress={() => onPackagerPress(app)} />
+              );
+            })}
+          </>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+type PackagerRowProps = {
+  label: string;
+  onPress: () => void;
+};
+
+function PackagerRow({ onPress, label }: PackagerRowProps) {
+  return (
+    <View rounded="medium">
+      <Button.ScaleOnPressContainer bg="default" onPress={onPress}>
+        <Row align="center" py="medium" px="small">
+          <StatusIndicator size="small" status="success" />
+          <Spacer.Horizontal size="small" />
+          <Text>{label}</Text>
+          <Spacer.Horizontal size="flex" />
+          <ChevronRightIcon />
+        </Row>
+      </Button.ScaleOnPressContainer>
+      <Divider />
     </View>
   );
 }

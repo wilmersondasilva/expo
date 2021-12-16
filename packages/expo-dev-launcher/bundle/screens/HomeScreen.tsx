@@ -148,7 +148,6 @@ export function HomeScreen({
               )}
 
               <FetchDevSessionsRow isFetching={isFetching} onRefetchPress={onRefetchPress} />
-
               <Divider />
 
               <UrlDropdown onSubmit={onUrlSubmit} />
