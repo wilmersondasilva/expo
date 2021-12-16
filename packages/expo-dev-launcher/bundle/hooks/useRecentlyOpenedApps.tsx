@@ -44,7 +44,6 @@ export function useRecentlyOpenedApps() {
           };
         });
 
-
         setRecentApps(formattedApps);
         setIsFetching(false);
       })
