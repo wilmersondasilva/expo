@@ -38,9 +38,7 @@ function ModalStackContainer() {
         toValue: 1,
         useNativeDriver: false,
       }).start();
-    }
-
-    if (!hasModal) {
+    } else {
       Animated.spring(animatedValue.current, {
         toValue: 0,
         useNativeDriver: false,
