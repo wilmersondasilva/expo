@@ -11,10 +11,23 @@ export type ModalProps = {
   };
 };
 
-const ModalStack = createAsyncStack<ModalProps>();
+const ModalContext = React.createContext(createAsyncStack<ModalProps>());
+export const useModalStack = () => React.useContext(ModalContext);
+
+export function ModalProvider({ children }) {
+  const modalStack = React.useRef(createAsyncStack<ModalProps>());
+
+  return (
+    <ModalContext.Provider value={modalStack.current}>
+      {children}
+      <ModalStackContainer />
+    </ModalContext.Provider>
+  );
+}
 
 function ModalStackContainer() {
-  const modals = useStackItems(ModalStack);
+  const modalStack = useModalStack();
+  const modals = useStackItems(modalStack);
   const animatedValue = React.useRef(new Animated.Value(0));
 
   const hasModal = modals.some((m) => m.status === 'settled' || m.status === 'pushing');
@@ -48,9 +61,9 @@ function ModalStackContainer() {
         <ModalScreen
           key={item.key}
           {...item}
-          onClose={() => ModalStack.pop()}
-          onPopEnd={() => ModalStack.onPopEnd(item.key)}
-          onPushEnd={() => ModalStack.onPushEnd(item.key)}
+          onClose={() => modalStack.pop()}
+          onPopEnd={() => modalStack.onPopEnd(item.key)}
+          onPushEnd={() => modalStack.onPushEnd(item.key)}
         />
       ))}
     </Animated.View>
@@ -112,17 +125,5 @@ function ModalScreen({
         {element}
       </Button.Container>
     </Animated.View>
-  );
-}
-
-const ModalContext = React.createContext(ModalStack);
-export const useModalStack = () => React.useContext(ModalContext);
-
-export function ModalProvider({ children }) {
-  return (
-    <ModalContext.Provider value={ModalStack}>
-      {children}
-      <ModalStackContainer />
-    </ModalContext.Provider>
   );
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { getLocalDevSessionsAsync } from '../../functions/getLocalDevSessionsAsync';
+import { getDevSessionsAsync } from '../../functions/getDevSessionsAsync';
 import { UserData } from '../../functions/getUserProfileAsync';
 import { RecentApp } from '../../hooks/useRecentlyOpenedApps';
 import {
@@ -13,10 +13,10 @@ import { render, waitFor, fireEvent, act } from '../../test-utils';
 import { DevSession } from '../../types';
 import { HomeScreen, HomeScreenProps } from '../HomeScreen';
 
-jest.mock('../../functions/getLocalDevSessionsAsync');
+jest.mock('../../functions/getDevSessionsAsync');
 jest.mock('../../hooks/useDebounce');
 
-const mockGetDevSessionsAsync = getLocalDevSessionsAsync as jest.Mock;
+const mockGetDevSessionsAsync = getDevSessionsAsync as jest.Mock;
 const mockQueryDevSessionsAsync = queryDevSessionsAsync as jest.Mock;
 const mockGetRecentlyOpenedApps = getRecentlyOpenedApps as jest.Mock;
 
@@ -77,11 +77,11 @@ describe('<HomeScreen />', () => {
     mockGetDevSessionsAsync.mockClear();
     mockGetDevSessionsResponse([fakeDevSessions[0]]);
     expect(() => getByText(fakeDevSessions[0].description)).toThrow();
-    expect(getLocalDevSessionsAsync).not.toHaveBeenCalled();
+    expect(getDevSessionsAsync).not.toHaveBeenCalled();
 
     await refetch();
     expect(getByText(fetchingDevSessionsRegex));
-    expect(getLocalDevSessionsAsync).toHaveBeenCalled();
+    expect(getDevSessionsAsync).toHaveBeenCalled();
 
     await waitFor(() => getByText(fakeDevSessions[0].description));
   });
@@ -101,16 +101,16 @@ describe('<HomeScreen />', () => {
     await act(async () => {
       await waitFor(() => getByText(refetchDevSessionsRegex));
       fireEvent.press(getByText(refetchDevSessionsRegex));
-      expect(getLocalDevSessionsAsync).toHaveBeenCalledTimes(1);
+      expect(getDevSessionsAsync).toHaveBeenCalledTimes(1);
     });
 
     // ensure button is disabled when fetching
     await act(async () => {
       fireEvent.press(getByText(fetchingDevSessionsRegex));
       await waitFor(() => getByText(refetchDevSessionsRegex));
-      expect(getLocalDevSessionsAsync).toHaveBeenCalledTimes(testPollAmount);
+      expect(getDevSessionsAsync).toHaveBeenCalledTimes(testPollAmount);
       fireEvent.press(getByText(refetchDevSessionsRegex));
-      expect(getLocalDevSessionsAsync).toHaveBeenCalledTimes(testPollAmount + 1);
+      expect(getDevSessionsAsync).toHaveBeenCalledTimes(testPollAmount + 1);
     });
   });
 
@@ -175,8 +175,6 @@ describe('<HomeScreen />', () => {
   });
 
   test('displays dev sessions for authenticated users', async () => {
-    expect(queryDevSessionsAsync).not.toHaveBeenCalled();
-
     const fakeDevSession: DevSession = {
       description: 'devSession1',
       source: 'desktop',
@@ -189,7 +187,7 @@ describe('<HomeScreen />', () => {
       url: 'http://10.0.0.225:134',
     };
 
-    mockQueryDevSessionsAsync.mockResolvedValueOnce([fakeDevSession, fakeDevSession2]);
+    mockGetDevSessionsAsync.mockResolvedValueOnce([fakeDevSession, fakeDevSession2]);
 
     const { getByText, queryByText } = renderHomeScreen({
       fetchOnMount: true,
@@ -208,10 +206,10 @@ describe('<HomeScreen />', () => {
     expect(queryByText(fakeDevSession.description)).toBe(null);
     expect(queryByText(fakeDevSession2.description)).toBe(null);
 
-    await waitFor(() => expect(queryDevSessionsAsync).toHaveBeenCalled());
-
-    getByText(fakeDevSession.description);
-    getByText(fakeDevSession2.description);
+    await act(async () => {
+      await waitFor(() => getByText(fakeDevSession.description));
+      getByText(fakeDevSession2.description);
+    });
   });
 
   test('displays recently opened apps', async () => {

@@ -1,11 +1,9 @@
 import * as React from 'react';
 
-import { getLocalDevSessionsAsync } from '../functions/getLocalDevSessionsAsync';
+import { getDevSessionsAsync } from '../functions/getDevSessionsAsync';
 import { sleepAsync } from '../functions/sleepAsync';
 import { useIsMounted } from '../hooks/useIsMounted';
 import { useUser } from '../hooks/useUser';
-import { isDevice } from '../native-modules/DevLauncherInternal';
-import { queryDevSessionsAsync } from '../native-modules/DevMenu';
 import { DevSession } from '../types';
 
 type PollOptions = {
@@ -45,18 +43,8 @@ export function useDevSessions() {
 
   async function fetchDevSessionsAsync() {
     setIsFetching(true);
-    let packagers = [];
-
-    if (isAuthenticated) {
-      const data = await queryDevSessionsAsync();
-      packagers = data;
-    }
-
-    if ((!packagers || !packagers.length) && !isDevice) {
-      packagers = await getLocalDevSessionsAsync();
-    }
-
-    setDevSessions(packagers);
+    const devSessions = await getDevSessionsAsync(isAuthenticated);
+    setDevSessions(devSessions);
     setIsFetching(false);
   }
 

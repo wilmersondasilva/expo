@@ -11,11 +11,14 @@ import {
   StatusIndicator,
   TerminalIcon,
   ChevronRightIcon,
+  XIcon,
+  QuestionMarkIcon,
 } from 'expo-dev-client-components';
 import * as React from 'react';
 import { Alert, ScrollView } from 'react-native';
 
 import { AppHeader } from '../components/redesign/AppHeader';
+import { useModalStack } from '../components/redesign/Modal';
 import { PulseIndicator } from '../components/redesign/PulseIndicator';
 import { UrlDropdown } from '../components/redesign/UrlDropdown';
 import { useBuildInfo } from '../hooks/useBuildInfo';
@@ -37,6 +40,7 @@ export function HomeScreen({
   pollAmount = 5,
   navigation,
 }: HomeScreenProps) {
+  const modalStack = useModalStack();
   const { data: devSessions, pollAsync, isFetching } = useDevSessions();
 
   const buildInfo = useBuildInfo();
@@ -76,6 +80,10 @@ export function HomeScreen({
     onLoadUrl(url);
   };
 
+  const onDevServerQuestionPress = () => {
+    modalStack.push({ element: <DevServerExplainerModal /> });
+  };
+
   return (
     <ScrollView>
       <View bg="default">
@@ -95,15 +103,25 @@ export function HomeScreen({
           <Heading size="small" color="secondary">
             Development servers
           </Heading>
+
+          <Spacer.Horizontal size="flex" />
+          {devSessions.length > 0 && (
+            <Button.ScaleOnPressContainer
+              bg="ghost"
+              rounded="full"
+              onPress={onDevServerQuestionPress}>
+              <View padding="small" rounded="full" border="default">
+                <QuestionMarkIcon size="tiny" style={{ resizeMode: 'cover' }} />
+              </View>
+            </Button.ScaleOnPressContainer>
+          )}
         </Row>
 
         <Spacer.Vertical size="small" />
 
         <View px="medium">
           <View>
-            {devSessions?.length > 0 ? (
-              <DevSessionList devSessions={devSessions} onDevSessionPress={onDevSessionPress} />
-            ) : (
+            {devSessions.length === 0 && (
               <>
                 <View padding="medium" bg="default" roundedTop="large">
                   <Text size="medium">Start a local development server with:</Text>
@@ -114,10 +132,19 @@ export function HomeScreen({
                   </View>
 
                   <Spacer.Vertical size="small" />
-                  <Text size="medium">Then, select the local server when it appears here.</Text>
+                  <Text>Then, select the local server when it appears here.</Text>
+                  <Spacer.Vertical size="small" />
+                  <Text>
+                    Alternatively, open the Camera app and scan the QR code that appears in your
+                    terminal
+                  </Text>
                 </View>
                 <Divider />
               </>
+            )}
+
+            {devSessions?.length > 0 && (
+              <DevSessionList devSessions={devSessions} onDevSessionPress={onDevSessionPress} />
             )}
 
             <FetchDevSessionsRow isFetching={isFetching} onRefetchPress={onRefetchPress} />
@@ -150,7 +177,7 @@ function FetchDevSessionsRow({ isFetching, onRefetchPress }: FetchDevSessionsRow
       <Row align="center" padding="medium">
         <PulseIndicator isActive={isFetching} color={backgroundColor} />
         <Spacer.Horizontal size="small" />
-        <Button.Text size="large" color="default">
+        <Button.Text color="default">
           {isFetching ? 'Searching for development servers...' : 'Refetch development servers'}
         </Button.Text>
         <Spacer.Horizontal size="flex" />
@@ -238,6 +265,48 @@ function RecentlyOpenedApps({ onAppPress }) {
             </View>
           );
         })}
+      </View>
+    </View>
+  );
+}
+
+function DevServerExplainerModal() {
+  const modalStack = useModalStack();
+
+  const onClosePress = () => {
+    modalStack.pop();
+  };
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center' }} px="medium">
+      <View padding="medium" bg="default" rounded="large">
+        <Row align="center">
+          <Heading size="small">Development servers</Heading>
+          <Spacer.Horizontal size="flex" />
+          <Button.ScaleOnPressContainer
+            bg="default"
+            rounded="full"
+            onPress={onClosePress}
+            accessibilityHint="Close modal">
+            <View padding="tiny">
+              <XIcon />
+            </View>
+          </Button.ScaleOnPressContainer>
+        </Row>
+        <Spacer.Vertical size="small" />
+        <Text size="medium">Start a local development server with:</Text>
+        <Spacer.Vertical size="small" />
+
+        <View bg="secondary" border="default" rounded="medium" padding="medium">
+          <Text type="mono">expo start</Text>
+        </View>
+
+        <Spacer.Vertical size="large" />
+        <Text>Then, select the local server when it appears here.</Text>
+        <Spacer.Vertical size="small" />
+        <Text>
+          Alternatively, open the Camera app and scan the QR code that appears in your terminal
+        </Text>
       </View>
     </View>
   );

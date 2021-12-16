@@ -2,6 +2,7 @@ export * from './CheckIcon';
 export * from './ChevronRightIcon';
 export * from './ExpoLogoIcon';
 export * from './HomeFilledIcon';
+export * from './QuestionMarkIcon'
 export * from './RefreshIcon';
 export * from './ShakeDeviceIcon';
 export * from './ShowMenuIcon';

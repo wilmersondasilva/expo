@@ -44,12 +44,14 @@ export function AppProviders({
         <DevSessionsProvider initialDevSessions={initialDevSessions}>
           <RecentlyOpenedAppsProvider initialApps={initialRecentlyOpenedApps}>
             <BuildInfoProvider initialBuildInfo={initialBuildInfo}>
-              <PendingDeepLinkProvider initialPendingDeepLink={initialPendingDeepLink}>
-                <NavigationContainer theme={isDark ? darkNavigationTheme : lightNavigationTheme}>
-                  <StatusBar barStyle={statusBarContent} />
-                  <ModalProvider>{children}</ModalProvider>
-                </NavigationContainer>
-              </PendingDeepLinkProvider>
+              <ModalProvider>
+                <PendingDeepLinkProvider initialPendingDeepLink={initialPendingDeepLink}>
+                  <NavigationContainer theme={isDark ? darkNavigationTheme : lightNavigationTheme}>
+                    <StatusBar barStyle={statusBarContent} />
+                    {children}
+                  </NavigationContainer>
+                </PendingDeepLinkProvider>
+              </ModalProvider>
             </BuildInfoProvider>
           </RecentlyOpenedAppsProvider>
         </DevSessionsProvider>

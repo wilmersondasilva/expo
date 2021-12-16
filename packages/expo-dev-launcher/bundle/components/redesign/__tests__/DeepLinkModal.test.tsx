@@ -40,7 +40,7 @@ describe('<DeepLinkPrompt />', () => {
     });
   });
 
-  test.skip('shows packagers in modal', async () => {
+  test('shows packagers in modal', async () => {
     const closeFn = jest.fn();
 
     const { getByText } = render(<DeepLinkModal onClosePress={closeFn} pendingDeepLink="123" />, {
