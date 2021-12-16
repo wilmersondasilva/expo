@@ -12,7 +12,7 @@ import {
   TerminalIcon,
   ChevronRightIcon,
   XIcon,
-  QuestionMarkIcon,
+  InfoIcon,
 } from 'expo-dev-client-components';
 import * as React from 'react';
 import { Alert, ScrollView } from 'react-native';
@@ -109,9 +109,10 @@ export function HomeScreen({
               <Button.ScaleOnPressContainer
                 bg="ghost"
                 rounded="full"
+                minScale={0.85}
                 onPress={onDevServerQuestionPress}>
-                <View rounded="full" border="default" style={{ padding: 8 }}>
-                  <QuestionMarkIcon size="tiny" style={{ resizeMode: 'cover' }} />
+                <View rounded="full" padding="small">
+                  <InfoIcon />
                 </View>
               </Button.ScaleOnPressContainer>
             )}
