@@ -12,7 +12,11 @@ export function LogoutConfirmationModal({ onLogoutPress, onClosePress }) {
 
       <Row>
         <View flex="1" style={{ flexGrow: 1 }}>
-          <Button.ScaleOnPressContainer bg="tertiary" rounded="medium" onPress={onLogoutPress}>
+          <Button.ScaleOnPressContainer
+            bg="tertiary"
+            rounded="medium"
+            onPress={onLogoutPress}
+            accessibilityLabel="Log out">
             <View padding="small" rounded="medium">
               <Button.Text color="tertiary" weight="bold" align="center">
                 Log Out
