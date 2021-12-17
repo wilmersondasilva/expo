@@ -46,11 +46,6 @@ function initializeContext(gl: ExpoWebGLRenderingContext, asset: Asset): RenderC
   }
 `;
   const vertices = new Float32Array([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]);
-  // const gl = global.__EXGLContexts[String(contextid)];
-  // This sets drawing buffer size to physical pixel size.
-  // For example, our GL View size is 150x150 virtual pixels and PixelRatio.get() returns 3.
-  // Then, gl.drawingBufferWidth and gl.drawingBufferHeight will equal 450 physical pixels.
-  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   const vert = gl.createShader(gl.VERTEX_SHADER)!;
   gl.shaderSource(vert, vertShader);
   gl.compileShader(vert);
@@ -165,7 +160,7 @@ export default function GLReanimated() {
       translation.x.value = ctx.startX + event.translationX;
       translation.y.value = ctx.startY + event.translationY;
     },
-    onEnd: (_) => {
+    onEnd: _ => {
       translation.x.value = withSpring(0);
       translation.y.value = withSpring(0);
     },
@@ -190,7 +185,6 @@ export default function GLReanimated() {
         ]);
         gl.drawArrays(gl.TRIANGLES, 0, verticesLength / 2);
         gl.flush();
-        gl.flushEXP();
         gl.endFrameEXP();
       },
     },
