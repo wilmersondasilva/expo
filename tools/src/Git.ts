@@ -409,6 +409,14 @@ export class GitDirectory {
   }
 
   /**
+   * Reads file's content at the specific revision.
+   */
+  async readFileAsync(path: string, ref: string): Promise<string> {
+    const { stdout } = await this.runAsync(['show', `${ref}:${path}`]);
+    return stdout;
+  }
+
+  /**
    * Clones the repository but in a shallow way, which means
    * it downloads just one commit instead of the entire repository.
    * Returns `GitDirectory` instance of the cloned repository.

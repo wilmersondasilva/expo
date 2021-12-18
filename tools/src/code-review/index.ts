@@ -5,6 +5,7 @@ import * as GitHub from '../GitHub';
 import logger from '../Logger';
 import { COMMENT_HEADER, generateReportFromOutputs } from './reports';
 import checkMissingChangelogs from './reviewers/checkMissingChangelogs';
+import lintSwiftFiles from './reviewers/lintSwiftFiles';
 import reviewChangelogEntries from './reviewers/reviewChangelogEntries';
 import reviewForbiddenFiles from './reviewers/reviewForbiddenFiles';
 import { ReviewEvent, ReviewComment, ReviewInput, ReviewOutput, ReviewStatus } from './types';
@@ -12,7 +13,12 @@ import { ReviewEvent, ReviewComment, ReviewInput, ReviewOutput, ReviewStatus } f
 /**
  * An array with functions whose purpose is to check and review the diff.
  */
-const REVIEWERS = [checkMissingChangelogs, reviewChangelogEntries, reviewForbiddenFiles];
+const REVIEWERS = [
+  checkMissingChangelogs,
+  reviewChangelogEntries,
+  reviewForbiddenFiles,
+  lintSwiftFiles,
+];
 
 enum Label {
   PASSED_CHECKS = 'bot: passed checks',
