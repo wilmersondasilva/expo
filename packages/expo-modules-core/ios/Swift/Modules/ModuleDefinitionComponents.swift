@@ -141,7 +141,15 @@ extension AnyModule {
   ) -> AnyFunction {
     return ConcreteFunction(
       name,
-      argTypes: [ArgumentType(A0.self), ArgumentType(A1.self), ArgumentType(A2.self), ArgumentType(A3.self), ArgumentType(A4.self), ArgumentType(A5.self), ArgumentType(A6.self)],
+      argTypes: [
+        ArgumentType(A0.self),
+        ArgumentType(A1.self),
+        ArgumentType(A2.self),
+        ArgumentType(A3.self),
+        ArgumentType(A4.self),
+        ArgumentType(A5.self),
+        ArgumentType(A6.self)
+      ],
       closure
     )
   }
@@ -149,13 +157,32 @@ extension AnyModule {
   /**
    Function with eight arguments.
    */
-  public func function<R, A0: AnyArgument, A1: AnyArgument, A2: AnyArgument, A3: AnyArgument, A4: AnyArgument, A5: AnyArgument, A6: AnyArgument, A7: AnyArgument>(
+  public func function<
+    R,
+    A0: AnyArgument,
+    A1: AnyArgument,
+    A2: AnyArgument,
+    A3: AnyArgument,
+    A4: AnyArgument,
+    A5: AnyArgument,
+    A6: AnyArgument,
+    A7: AnyArgument
+  >(
     _ name: String,
     _ closure: @escaping (A0, A1, A2, A3, A4, A5, A6, A7) -> R
   ) -> AnyFunction {
     return ConcreteFunction(
       name,
-      argTypes: [ArgumentType(A0.self), ArgumentType(A1.self), ArgumentType(A2.self), ArgumentType(A3.self), ArgumentType(A4.self), ArgumentType(A5.self), ArgumentType(A6.self), ArgumentType(A7.self)],
+      argTypes: [
+        ArgumentType(A0.self),
+        ArgumentType(A1.self),
+        ArgumentType(A2.self),
+        ArgumentType(A3.self),
+        ArgumentType(A4.self),
+        ArgumentType(A5.self),
+        ArgumentType(A6.self),
+        ArgumentType(A7.self)
+      ],
       closure
     )
   }
