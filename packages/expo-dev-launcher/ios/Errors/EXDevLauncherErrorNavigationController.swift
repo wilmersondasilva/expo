@@ -13,7 +13,7 @@ class EXDevLauncherErrorNavigationController: UINavigationController {
     let topVC = self.topViewController as? EXDevLauncherErrorViewController
     topVC?.manager = manager
   }
-  
+
   @objc
   public static func create(forManager manager: EXDevLauncherErrorManager) -> EXDevLauncherErrorNavigationController? {
     guard let bundle = EXDevLauncherUtils.resourcesBundle() else {
@@ -22,7 +22,7 @@ class EXDevLauncherErrorNavigationController: UINavigationController {
 
     let storyboard = UIStoryboard(name: "EXDevLauncherErrorView", bundle: bundle)
     let vc = storyboard.instantiateViewController(withIdentifier: "EXDevLauncherErrorView") as? EXDevLauncherErrorNavigationController
-    
+
     vc?.manager = manager
     return vc
   }
