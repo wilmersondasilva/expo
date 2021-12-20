@@ -46,6 +46,7 @@ function runAsync(args: string[], options: SpawnOptions = {}): Promise<SpawnResu
   return spawnAsync('swiftlint', args, {
     cwd: EXPO_DIR,
     ...options,
+    stdio: ['pipe', 'pipe', 'inherit'],
   });
 }
 
@@ -53,17 +54,23 @@ function runAsync(args: string[], options: SpawnOptions = {}): Promise<SpawnResu
  * Parses JSON reported by `swiftlint` to the array of violations.
  */
 function parseLintResultsFromJSONString(jsonString: string): LintViolation[] {
-  const json = JSON.parse(jsonString);
+  try {
+    const json = JSON.parse(jsonString);
 
-  return json.map(({ file, line, character, reason, severity, type, rule_id }) => ({
-    file,
-    line,
-    column: character ?? 0,
-    reason,
-    severity: severity.toLowerCase(),
-    type,
-    ruleId: rule_id,
-  }));
+    return json.map(({ file, line, character, reason, severity, type, rule_id }) => ({
+      file,
+      line,
+      column: character ?? 0,
+      reason,
+      severity: severity.toLowerCase(),
+      type,
+      ruleId: rule_id,
+    }));
+  } catch (e) {
+    console.error('jsonString:', jsonString);
+    console.error('error:', e);
+    throw e;
+  }
 }
 
 /**
