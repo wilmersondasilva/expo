@@ -19,6 +19,17 @@ jobs:
     steps:
       - name: 👀 Checkout
         uses: actions/checkout@v2
+      - name: 👷 Build and install SwiftLint
+        run: |
+          git clone https://github.com/realm/SwiftLint.git
+          cd SwiftLint
+          make build
+          cp .build/x86_64-unknown-linux-gnu/release/swiftlint /usr/local/bin/
+      - name: Make an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: swiftlint
+          path: SwiftLint/.build
       - name: ♻️ Restore node modules in tools
         uses: actions/cache@v2
         id: tools-modules-cache
